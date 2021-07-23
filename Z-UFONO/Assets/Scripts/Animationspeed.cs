@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Advertisements;
 
-public class Movement : MonoBehaviour
+public class Movement : MonoBehaviour, IUnityAdsListener
 {
     public Animator Gun;
     public Vector2 targetPos;
@@ -42,13 +42,22 @@ public class Movement : MonoBehaviour
     public int shopscore;
     public BoxCollider2D bc;
     public SpriteRenderer mr;
-    string gameID = "3757528";
+    
     bool testMode = false;
     public int skore;
     public Text cooldown;
     public float Stap = 0;
     public float StapAgain;
-   
+
+    string mySurfacingId = "rewardedVideo";
+
+
+#if UNITY_IOS
+    private string gameId = "3757528";
+#elif UNITY_ANDROID
+    private string gameId = "3757529";
+#endif
+
 
 
 
@@ -58,7 +67,7 @@ public class Movement : MonoBehaviour
     {
         highScore.text = PlayerPrefs.GetInt("highscore", 0).ToString();
         barya = PlayerPrefs.GetInt("barya", 0);
-        
+        Advertisement.AddListener(this);
         score = PlayerPrefs.GetInt("skore", 0);
         StapAgain = PlayerPrefs.GetInt("StapAgain", 10);
         
@@ -66,7 +75,7 @@ public class Movement : MonoBehaviour
 
 
         PlayerPrefs.Save();
-        Advertisement.Initialize(gameID, testMode);
+        Advertisement.Initialize(gameId, testMode);
     }
 
     // Update is called once per frame
@@ -379,9 +388,73 @@ public class Movement : MonoBehaviour
         }
     }
 
+    public void ShowRewardedVideo()
+    {
+        // Check if UnityAds ready before calling Show method:
+        if (Advertisement.IsReady(mySurfacingId))
+        {
+            Advertisement.Show(mySurfacingId);
+            int val = PlayerPrefs.GetInt("barya", 0);
+            val += 25;
+            PlayerPrefs.SetInt("barya", val);
+            PlayerPrefs.Save();
+        }
+        else
+        {
+            Debug.Log("Rewarded video is not ready at the moment! Please try again later!");
+        }
+    }
 
+    public void OnUnityAdsDidFinish(string surfacingId, ShowResult showResult)
+    {
+        // Define conditional logic for each ad completion status:
+        if (showResult == ShowResult.Finished)
+        {
+            if (surfacingId == mySurfacingId)
+            {
+                // Reward the user for watching the ad to completion.
+                int val = PlayerPrefs.GetInt("barya", 0);
+                val += 25;
+                PlayerPrefs.SetInt("barya", val);
+                PlayerPrefs.Save();
 
+            }
+        }
+        else if (showResult == ShowResult.Skipped)
+        {
+            // Do not reward the user for skipping the ad.
+        }
+        else if (showResult == ShowResult.Failed)
+        {
+            Debug.LogWarning("The ad did not finish due to an error.");
+        }
+    }
 
-}
+    public void OnUnityAdsReady(string surfacingId)
+    {
+        // If the ready Ad Unit or legacy Placement is rewarded, show the ad:
+        if (surfacingId == mySurfacingId)
+        {
+            // Optional actions to take when theAd Unit or legacy Placement becomes ready (for example, enable the rewarded ads button)
+        }
+    }
+
+    public void OnUnityAdsDidError(string message)
+    {
+        // Log the error.
+    }
+
+    public void OnUnityAdsDidStart(string surfacingId)
+    {
+        // Optional actions to take when the end-users triggers an ad.
+    }
+
+    // When the object that subscribes to ad events is destroyed, remove the listener:
+    public void OnDestroy()
+    {
+        Advertisement.RemoveListener(this);
+    }
+
+    }
 
 
