@@ -83,7 +83,7 @@ public class SHOPBUTTON : MonoBehaviour
 
     public void Lv2Click()
     {
-        if (PlayerPrefs.GetInt("barya", 0) >= 200)
+        if(PlayerPrefs.GetInt("skore", 0) > 0)
         {
             PlayerPrefs.SetInt("sb2", 3);
             PlayerPrefs.Save();
@@ -92,13 +92,14 @@ public class SHOPBUTTON : MonoBehaviour
             SS3();
             SS4();
             SS5();
+            
         }
 
     }
 
     public void Lv3Click()
     {
-        if (PlayerPrefs.GetInt("barya", 0) >= 100)
+        if  (PlayerPrefs.GetInt("laze", 1) > 1)
         {
             PlayerPrefs.SetInt("sb3", 4);
             PlayerPrefs.Save();
@@ -114,7 +115,7 @@ public class SHOPBUTTON : MonoBehaviour
 
     public void Lv4Click()
     {
-        if (PlayerPrefs.GetInt("barya", 0) >= 200)
+        if (PlayerPrefs.GetInt("length", 10) > 10)
         {
             PlayerPrefs.SetInt("sb4", 5);
             PlayerPrefs.Save();

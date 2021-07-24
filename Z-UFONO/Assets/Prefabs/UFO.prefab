@@ -151,6 +151,7 @@ MonoBehaviour:
   shopscore: 500
   bc: {fileID: 0}
   mr: {fileID: 0}
+  Tryagain: {fileID: 522019020323261721, guid: 62b2cc9abc3bc084cbd0ff4cf39534c4, type: 3}
   skore: 0
   cooldown: {fileID: 0}
   Stap: 0

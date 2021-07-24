@@ -42,7 +42,7 @@ public class Movement : MonoBehaviour, IUnityAdsListener
     public int shopscore;
     public BoxCollider2D bc;
     public SpriteRenderer mr;
-    
+    static int loadCount = 0;
     bool testMode = false;
     public int skore;
     public Text cooldown;
@@ -70,9 +70,9 @@ public class Movement : MonoBehaviour, IUnityAdsListener
         Advertisement.AddListener(this);
         score = PlayerPrefs.GetInt("skore", 0);
         StapAgain = PlayerPrefs.GetInt("StapAgain", 10);
-        
+        Time.timeScale = 1;
         health = PlayerPrefs.GetInt("Health", 3);
-
+        loadCount++;
 
         PlayerPrefs.Save();
         Advertisement.Initialize(gameId, testMode);
@@ -98,14 +98,18 @@ public class Movement : MonoBehaviour, IUnityAdsListener
         coin.text = baryascore.ToString();
         if (health <= 0)
         {
+            
             GameOver.SetActive(true);
             UFO = (GameObject)Instantiate(UFO, transform.position, transform.rotation);
-            Destroy(gameObject);
+            gameObject.SetActive(false);
             PlayerPrefs.SetInt("barya", barya += baryascore);
             PlayerPrefs.Save();
-            if (Advertisement.IsReady("video"))
+            if (loadCount % 2 == 0)
             {
-                Advertisement.Show("video");
+                if (Advertisement.IsReady("video"))
+                {
+                    Advertisement.Show("video");
+                }
             }
 
         }
@@ -242,7 +246,7 @@ public class Movement : MonoBehaviour, IUnityAdsListener
 
     IEnumerator Normal()
     {
-        yield return new WaitForSeconds(0.8f);
+        yield return new WaitForSeconds(0.25f);
         {
             GetComponent<BoxCollider2D>().enabled = true;
         }
@@ -354,11 +358,11 @@ public class Movement : MonoBehaviour, IUnityAdsListener
 
     public void HS3()
     {
-        if (PlayerPrefs.GetInt("highscore", 0) >= 1500)
+        if (PlayerPrefs.GetInt("highscore", 0) >= 2000)
         {
 
             int val = PlayerPrefs.GetInt("barya", 0);
-            val += 100;
+            val += 150;
             PlayerPrefs.SetInt("barya", val);
             PlayerPrefs.Save();
         }
@@ -405,6 +409,25 @@ public class Movement : MonoBehaviour, IUnityAdsListener
         }
     }
 
+    public void ShowRewardedVideoRevive()
+    {
+        // Check if UnityAds ready before calling Show method:
+        if (Advertisement.IsReady(mySurfacingId))
+        {
+            Advertisement.Show(mySurfacingId);
+            
+        }
+        else
+        {
+            Debug.Log("Rewarded video is not ready at the moment! Please try again later!");
+        }
+    }
+    IEnumerator Revive()
+    {
+        yield return new WaitForSeconds(1f);
+        Time.timeScale = 1;
+
+    }
     public void OnUnityAdsDidFinish(string surfacingId, ShowResult showResult)
     {
         // Define conditional logic for each ad completion status:
@@ -412,14 +435,16 @@ public class Movement : MonoBehaviour, IUnityAdsListener
         {
             if (surfacingId == mySurfacingId)
             {
-                // Reward the user for watching the ad to completion.
-                int val = PlayerPrefs.GetInt("barya", 0);
-                val += 25;
-                PlayerPrefs.SetInt("barya", val);
-                PlayerPrefs.Save();
+                gameObject.SetActive(true);
+                health = 1;
+                Time.timeScale = 0.5f;
+                StartCoroutine(Revive());
+                GameOver.SetActive(false);
 
             }
         }
+
+        
         else if (showResult == ShowResult.Skipped)
         {
             // Do not reward the user for skipping the ad.

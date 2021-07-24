@@ -37,13 +37,13 @@ public class Laser : MonoBehaviour
     {
        
 
-        if (PlayerPrefs.GetInt("barya", 0) >= 100 && PlayerPrefs.GetInt("laze", 1) <= 1)
+        if (PlayerPrefs.GetInt("barya", 0) >= 200 && PlayerPrefs.GetInt("laze", 1) <= 1)
         {
 
             PlayerPrefs.SetInt("laze", 2);
             PlayerPrefs.Save();
             int val = PlayerPrefs.GetInt("barya", 0);
-            val -= 100;
+            val -= 200;
             PlayerPrefs.SetInt("barya", val);
         }
     }
